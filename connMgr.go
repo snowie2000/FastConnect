@@ -224,8 +224,13 @@ type preConnectedConn struct {
 func (c *preConnectedConn) Write(p []byte) (int, error) {
 	if c.bFirstWrite {
 		c.bFirstWrite = false
-		morphed := mtuPool.Get().([]byte)
-		defer mtuPool.Put(morphed)
+		var morphed []byte
+		if len(p) < 4096 {
+			morphed = mtuPool.Get().([]byte)
+			defer mtuPool.Put(morphed)
+		} else {
+			morphed = make([]byte, len(signalStart)+len(p))
+		}
 		copy(morphed[copy(morphed, signalStart):], p)
 		n, e := c.Conn.Write(morphed[:len(p)+len(signalStart)])
 		if n > 0 {
