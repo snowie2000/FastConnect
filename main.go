@@ -98,7 +98,7 @@ func runServer() {
 		if e == nil {
 			go handleServerConn(conn)
 		} else {
-			log.Fatal(e)
+			log.Println("Can't accept a connection, because of", e)
 		}
 	}
 }
